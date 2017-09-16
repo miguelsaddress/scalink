@@ -1,5 +1,4 @@
 import com.google.inject.{ AbstractModule, Provides, Singleton }
-import play.api.{Configuration, Environment}
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 

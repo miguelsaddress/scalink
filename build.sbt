@@ -10,7 +10,7 @@ scalaVersion := "2.12.2"
 
 libraryDependencies += guice
 libraryDependencies += "com.typesafe.slick" %% "slick" % "3.2.1"
-
+libraryDependencies += "org.flywaydb" %% "flyway-play" % "4.0.0"
 
 libraryDependencies ++= Seq( 
   "org.webjars" %% "webjars-play" % "2.6.1",
@@ -27,9 +27,5 @@ libraryDependencies ++= Seq(
  "org.scalatestplus.play" %% "scalatestplus-play" % "3.0.0" % Test
 )
 
-/* config for testing */
-//javaOptions in Test += "-Dconfig.file=conf/application.test.conf"
-
-//javaOptions in Test += "-Dconfig.resource=application.test.conf"
-
-  
+javaOptions in Test += "-Dconfig.resource=application.test.conf"
+javaOptions in Test += "-Denv=test"
