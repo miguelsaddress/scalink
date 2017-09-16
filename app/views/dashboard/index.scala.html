@@ -1,0 +1,17 @@
+@import play.api.mvc.RequestHeader
+@import controllers.AssetsFinder
+@import org.webjars.play.WebJarsUtil
+@import business.adt.SignUpData
+
+@(users: Seq[User])(implicit request:RequestHeader, messages: Messages, assets: AssetsFinder, webJarsUtil: WebJarsUtil)
+
+@main(messages("app.dashboard")) {
+  <div class="row">
+    <p> List of users (remove this text)</p>
+    <ul id="users">
+    @for(u <- users) {
+      <li>@u.id - @u.username - @u.email </li>
+    }
+    </ul>    
+  </div>
+}

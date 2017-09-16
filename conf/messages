@@ -1,0 +1,17 @@
+name = Name
+username = Username
+email = E-Mail
+home = Home
+signUp = Sign Up
+
+
+# forms
+#signup form
+
+forms.signUp.name = Your name
+forms.signUp.username = Pick a username
+forms.signUp.email = Your E-Mail
+forms.signUp.password = Choose a password
+forms.signUp.add = Sign Up!
+forms.signUp.alreadyHaveAccount = Already have an account!
+forms.signUp.sigInHere = Sign In Here
