@@ -2,9 +2,6 @@ import com.google.inject.{ AbstractModule, Provides, Singleton }
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
-import play.api.Logger
-
-
 /**
  * This class is a Guice module that tells Guice how to bind several
  * different types. This Guice module is created when the Play
@@ -23,7 +20,6 @@ class Module extends AbstractModule {
   @Provides @Singleton
   def provideDatabaseConfig: DatabaseConfig[JdbcProfile] = {
     val env = Option(System.getProperty("env")).getOrElse("dev")
-    Logger.debug(env)
     env match {
       case "dev" => DatabaseConfig.forConfig[JdbcProfile]("dev")
       case "test" => DatabaseConfig.forConfig[JdbcProfile]("test")

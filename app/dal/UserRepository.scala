@@ -35,21 +35,20 @@ class UserRepository @Inject() (val dbConfig: DatabaseConfig[JdbcProfile], val t
     val insertReturningUserWithIdQuery = 
       users returning users.map(_.id) into ((user,id) => user.copy(id=id))
       (insertReturningUserWithIdQuery += user).asTry 
-  } map { res => 
-    Logger.debug(res.toString())
-    res match {
-      case Success(user) => Right(user)
-      case Failure(e: Exception) => {
-        val msg = e.getMessage()
-        msg match {
-          case _ if msg.contains("idx_unique_username") => Left(UsernameTaken)
-          case _ if msg.contains("idx_unique_email") => Left(EmailTaken)
-          case _ => Left(DBFailure)
+    } map { res => 
+      res match {
+        case Success(user) => Right(user)
+        case Failure(e: Exception) => {
+          val msg = e.getMessage()
+          msg match {
+            case _ if msg.contains("idx_unique_username") => Left(UsernameTaken)
+            case _ if msg.contains("idx_unique_email") => Left(EmailTaken)
+            case _ => Left(DBFailure)
+          }
         }
+        case Failure(_) => Left(DBFailure)
       }
-      case Failure(_) => Left(DBFailure)
-    }
-  }      
+    }      
 
   /**
    * List all the users in the database.

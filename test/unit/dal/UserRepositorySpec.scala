@@ -11,7 +11,7 @@ import dal.UserRepository.Failures._
 /**
  * @see example https://github.com/knoldus/activator-play-slick-app/blob/master/src/main/g8/test/repo/EmployeeRepositorySpec.scala
  */
-class UserRepositorySpec() extends RepositorySpec {
+class UserRepositorySpec() extends InvolvesDBSpecification {
 
 
   "Adding a new User" should {
@@ -23,7 +23,7 @@ class UserRepositorySpec() extends RepositorySpec {
     "Return newly created user after successfull creation" in new WithApplication() {
 
       // it should have been inserted
-      await(users.add(userOk)) match {
+      await(userRepository.add(userOk)) match {
         case Right(user) => {
           user.name === userOk.name
           user.username === userOk.username
@@ -39,11 +39,8 @@ class UserRepositorySpec() extends RepositorySpec {
     }
 
     "Return a UsernameTaken when creating a user with an existing username" in new WithApplication() {
-      val app2Repo = Application.instanceCache[UserRepository]
-      val users: UserRepository = app2Repo(app)
-
       // it should have been failed due to duplicated usernam
-      await(users.add(userUsernameTaken)) match {
+      await(userRepository.add(userUsernameTaken)) match {
         case Right(user) => {
           //forcing test to fail if we reach here
           true === false
@@ -55,13 +52,9 @@ class UserRepositorySpec() extends RepositorySpec {
       }
     }
 
-
     "Return a EmailTaken when creating a user with an existing email" in new WithApplication() {
-            val app2Repo = Application.instanceCache[UserRepository]
-      val users: UserRepository = app2Repo(app)
-
       // it should have been failed due to duplicated email. I replace the usernam
-      await(users.add(userEmailTaken)) match {
+      await(userRepository.add(userEmailTaken)) match {
         case Right(user) => {
           //forcing test to fail if we reach here
           true === false

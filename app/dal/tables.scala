@@ -3,9 +3,9 @@ package dal
 import javax.inject.{ Inject, Singleton }
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
-import models.User
 import scala.concurrent.{ Future, ExecutionContext }
 
+import models.User
 
 /**
  * A repository for users.
@@ -30,17 +30,17 @@ class Tables @Inject() (val dbConfig: DatabaseConfig[JdbcProfile])(implicit ec: 
     def idx_unique_email = index("idx_unique_email", (email), unique = true)
     def idx_unique_username = index("idx_unique_username", (username), unique = true)
 
-
-    /**
-     * This is the tables default "projection".
-     *
-     * It defines how the columns are converted to and from the User object.
-     *
-     * In this case, we are simply passing the User parameters to the User case classes
-     * apply and unapply methods.
-     */
     def * = (name, username, email, password, id) <> ((User.apply _).tupled, User.unapply)
   }
 
   val users = TableQuery[UsersTable]
+
+  def createSchema() = db.run(
+    users.schema.create
+  )
+
+  def dropSchema() = db.run (
+    users.schema.drop
+  )
+  
 }
