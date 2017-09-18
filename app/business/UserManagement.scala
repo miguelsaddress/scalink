@@ -7,9 +7,13 @@ import play.api.data.Form
 import play.api.data.Forms._
 
 import dal.UserRepository
-import dal.UserRepository.Failures._
+import dal.UserRepository.Failures.{
+  EmailTaken => EmailTakenRepoFailure, 
+  UsernameTaken => UsernameTakenRepoFailure
+}
 import models.User
-import business.adt.{ SignUpData, SignInData }
+import business.adt.User.{ SignUpData, SignInData }
+import business.adt.User.Failures._
 import util.{ PasswordExtensions => Password }
 import play.api.Logger
 
@@ -17,16 +21,15 @@ import play.api.Logger
 class UserManagement @Inject() (userRepository: UserRepository) {
     lazy val signUpForm: Form[SignUpData] = business.forms.User.signUpForm
     lazy val signInForm: Form[SignInData] = business.forms.User.signInForm
-
-
-    def signUp(data: SignUpData)(implicit ec: ExecutionContext): Future[Either[String, User]] = {
+    
+    def signUp(data: SignUpData)(implicit ec: ExecutionContext): Future[Either[SignUpFailure, User]] = {
       val user = User(data.name, data.username, data.email, Password(data.password).hash)
       userRepository.add(user) map { eitherUserOrFailure => eitherUserOrFailure match {
         case Right(user) => Right(user)
         case Left(failure) => failure match {
-          case EmailTaken => Left("emailTaken")
-          case UsernameTaken => Left("usernameTaken")
-          case _ => Left("unknownError")
+          case EmailTakenRepoFailure => Left(EmailTaken)
+          case UsernameTakenRepoFailure => Left(UsernameTaken)
+          case _ => Left(UnknownSignUpFailure)
         } 
       }}
     }

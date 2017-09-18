@@ -7,8 +7,9 @@ import play.api.Application
 import dal.UserRepository
 import models.User
 import business.UserManagement
-import business.adt.{ SignUpData, SignInData }
+import business.adt.User.{ SignUpData, SignInData }
 import util.{ PasswordExtensions => Password }
+import business.adt.User.Failures._
 
 import play.api.Logger
 
@@ -31,7 +32,7 @@ class UserManagementSpec extends InvolvesDBSpecification {
           user.password !== signUpDataOk.password
           Password(signUpDataOk.password).matches(user.password)
         }
-        case Left(msg:String) => {
+        case Left(failure) => {
           //forcing test to fail if we reach here
           true === false
         }
@@ -46,7 +47,7 @@ class UserManagementSpec extends InvolvesDBSpecification {
           true === false
         }
         case Left(failure) => {
-          failure shouldEqual "usernameTaken"
+          failure shouldEqual UsernameTaken
         }
       }
     }
@@ -59,13 +60,13 @@ class UserManagementSpec extends InvolvesDBSpecification {
           true === false
         }
         case Left(failure) => {
-          failure shouldEqual "emailTaken"
+          failure shouldEqual EmailTaken
         }
       }
     }
   }
 
-  "signIn" should {
+  "SignIn" should {
     val signUpDataOk = SignUpData(name = "Miguel", username = "signInOk", email = "signInOk@example.com", password = "A password")
     
     "Successfully signIn for existing email and password" in new WithApplication() {
@@ -105,4 +106,5 @@ class UserManagementSpec extends InvolvesDBSpecification {
       await(users.signIn(signInDataOk)) shouldEqual None
     }
   }
+
 }

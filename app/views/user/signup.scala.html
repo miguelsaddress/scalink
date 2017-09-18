@@ -1,7 +1,7 @@
 @import play.api.mvc.RequestHeader
 @import controllers.AssetsFinder
 @import org.webjars.play.WebJarsUtil
-@import business.adt.SignUpData
+@import business.adt.User.SignUpData
 
 @(signUpForm: Form[SignUpData])(implicit request:RequestHeader, messages: Messages, assets: AssetsFinder, webJarsUtil: WebJarsUtil)
 

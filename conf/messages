@@ -7,6 +7,13 @@ home = Home
 app.signUp = Sign Up
 app.signIn = Sign In
 
+# errors
+error.signUp.unkown = There was an unknown error during signup
+error.signUp.usernameTaken = That username is already taken
+error.signUp.emailTaken = That E-Mail is already taken
+
+error.signIn.wrongCredentials = Something went wrong during the Sign Up. Please verify the E-Mail and the Password
+
 # forms
 # signup form
 
@@ -26,4 +33,3 @@ forms.signIn.password = Choose a password
 forms.signIn.submit = Sign Ip!
 forms.signIn.noAccountYet = I don't have an account yet!
 forms.signIn.sigUpHere = Sign Up Here
-forms.signIn.error = Something went wrong during the Sign Up. Please verify the E-Mail and the Password

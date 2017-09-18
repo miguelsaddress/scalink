@@ -9,7 +9,6 @@ import scala.concurrent.{ExecutionContext, Future}
 import org.webjars.play.WebJarsUtil
 
 import business.UserManagement
-import business.adt.SignUpData
 
 import play.api.Logger
 
@@ -46,7 +45,9 @@ class AuthController @Inject()(
         users.signIn(signInData) map { r => 
           r match {
           case Some(user) => Redirect(routes.DashboardController.index)
-          case None => Redirect(routes.AuthController.signIn).flashing("error" -> Messages("forms.signIn.error"))
+          case None => Redirect(routes.AuthController.signIn).flashing(
+                        "error" -> Messages("error.signIn.wrongCredentials")
+                      )
         }}
       }
     )

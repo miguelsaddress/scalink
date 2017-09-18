@@ -2,7 +2,7 @@ package business.forms
 
 import play.api.data.Form
 import play.api.data.Forms._
-import business.adt.{ SignUpData, SignInData }
+import business.adt.User.{ SignUpData, SignInData }
 
 object User {
   lazy val signUpForm: Form[SignUpData] = Form {

@@ -2,7 +2,7 @@ import play.api.Application
 import play.api.test.WithApplication
 
 import business.UserManagement
-import business.adt.SignUpData
+import business.adt.User.SignUpData
 import models.User
 import dal.UserRepository
 import dal.UserRepository.Failures._
