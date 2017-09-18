@@ -25,12 +25,6 @@ class UserRepository @Inject() (val dbConfig: DatabaseConfig[JdbcProfile], val t
 
   val users = tables.users
 
-  
- 
-  def createSchema() = db.run(users.schema.create)
-  def dropSchema() = db.run(users.schema.drop)
-
-
   def add(user:User): Future[Either[UserRepositoryFailure, User]] = db.run {
     val insertReturningUserWithIdQuery = 
       users returning users.map(_.id) into ((user,id) => user.copy(id=id))
@@ -48,7 +42,11 @@ class UserRepository @Inject() (val dbConfig: DatabaseConfig[JdbcProfile], val t
         }
         case Failure(_) => Left(DBFailure)
       }
-    }      
+    } 
+
+  def findByEmail(email: String): Future[Option[User]] = db.run {
+    users.filter(_.email === email).result.headOption
+  }
 
   /**
    * List all the users in the database.

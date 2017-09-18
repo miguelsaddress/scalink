@@ -9,30 +9,33 @@ import play.api.data.Forms._
 import dal.UserRepository
 import dal.UserRepository.Failures._
 import models.User
-import business.adt.SignUpData
+import business.adt.{ SignUpData, SignInData }
 import util.{ PasswordExtensions => Password }
 import play.api.Logger
 
 @Singleton
 class UserManagement @Inject() (userRepository: UserRepository) {
-    lazy val signUpForm: Form[SignUpData] = Form {
-      mapping(
-        "name" -> nonEmptyText,
-        "username" -> nonEmptyText,
-        "email" -> nonEmptyText,
-        "password" -> nonEmptyText,
-      )(SignUpData.apply)(SignUpData.unapply)
-    }
+    lazy val signUpForm: Form[SignUpData] = business.forms.User.signUpForm
+    lazy val signInForm: Form[SignInData] = business.forms.User.signInForm
+
 
     def signUp(data: SignUpData)(implicit ec: ExecutionContext): Future[Either[String, User]] = {
-        val user = User(data.name, data.username, data.email, Password(data.password).hash)
-        userRepository.add(user) map { eitherUserOrFailure => eitherUserOrFailure match {
-          case Right(user) => Right(user)
-          case Left(failure) => failure match {
-            case EmailTaken => Left("emailTaken")
-            case UsernameTaken => Left("usernameTaken")
-            case _ => Left("unknownError")
-          } 
+      val user = User(data.name, data.username, data.email, Password(data.password).hash)
+      userRepository.add(user) map { eitherUserOrFailure => eitherUserOrFailure match {
+        case Right(user) => Right(user)
+        case Left(failure) => failure match {
+          case EmailTaken => Left("emailTaken")
+          case UsernameTaken => Left("usernameTaken")
+          case _ => Left("unknownError")
+        } 
+      }}
+    }
+
+    def signIn(data: SignInData)(implicit ec: ExecutionContext): Future[Option[User]] = {
+      userRepository.findByEmail(data.email) map { mayBeUser => 
+        mayBeUser match {
+          case Some(u) if (Password(data.password).matches(u.password)) => Some(u)
+          case _ => None
         }
       }
     }

@@ -66,4 +66,24 @@ class UserRepositorySpec() extends InvolvesDBSpecification {
       }
     }
   } 
+
+  "Finding a user by Email" should {
+    val user = User(name = "My Name", username = "finding_by_email", email = "finding_by_email@example.com", password = "A password")
+
+    "Return the Option[User] if the Email exists" in new WithApplication() {
+      await(userRepository.add(user))
+
+      val foundUser: User = await(userRepository.findByEmail(user.email)).get
+      foundUser.getClass.getName === "models.User"
+
+      foundUser.name === user.name
+      foundUser.username === user.username
+      foundUser.email === user.email
+      foundUser.password !== user.email
+    }
+
+    "Return the None if the Email DOES NOT exist" in new WithApplication() {
+      await(userRepository.findByEmail("invented")) === None
+    }
+  }
 }

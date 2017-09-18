@@ -2,11 +2,13 @@ name = Name
 username = Username
 email = E-Mail
 home = Home
-signUp = Sign Up
 
+# app
+app.signUp = Sign Up
+app.signIn = Sign In
 
 # forms
-#signup form
+# signup form
 
 forms.signUp.name = Your name
 forms.signUp.username = Pick a username
@@ -15,3 +17,13 @@ forms.signUp.password = Choose a password
 forms.signUp.add = Sign Up!
 forms.signUp.alreadyHaveAccount = Already have an account!
 forms.signUp.sigInHere = Sign In Here
+
+
+# signIn form
+
+forms.signIn.email = Your E-Mail
+forms.signIn.password = Choose a password
+forms.signIn.submit = Sign Ip!
+forms.signIn.noAccountYet = I don't have an account yet!
+forms.signIn.sigUpHere = Sign Up Here
+forms.signIn.error = Something went wrong during the Sign Up. Please verify the E-Mail and the Password
