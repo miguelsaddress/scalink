@@ -76,6 +76,19 @@
                       </div>
                     </div>
                     <div class="form-group">
+                      <div class="input-group">
+                        <span class="input-group-addon">
+                          <i class="glyphicon glyphicon-lock"></i>
+                        </span>
+                        @b3.password(
+                          signUpForm("passwordConf"), 
+                          'placeholder -> messages("forms.signUp.passwordConfirmation"), 
+                          'class -> "form-control",
+                          'autofocus -> true
+                        )
+                      </div>
+                    </div>
+                    <div class="form-group">
                       @b3.submit('class -> "btn btn-lg btn-primary btn-block"){ @messages("forms.signUp.add") }
                     </div>
                   </div>

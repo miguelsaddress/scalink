@@ -11,6 +11,7 @@ object User {
       "username" -> nonEmptyText,
       "email" -> nonEmptyText,
       "password" -> nonEmptyText,
+      "passwordConf" -> nonEmptyText,
     )(SignUpData.apply)(SignUpData.unapply)
   }
 
