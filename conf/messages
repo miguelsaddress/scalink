@@ -2,10 +2,11 @@ name = Name
 username = Username
 email = E-Mail
 home = Home
-
+hello = Hello
 # app
 app.signUp = Sign Up
 app.signIn = Sign In
+app.signOut = Sign Out
 
 # errors
 error.signUp.unkown = There was an unknown error during signup

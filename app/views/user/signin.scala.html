@@ -3,7 +3,7 @@
 @import org.webjars.play.WebJarsUtil
 @import business.adt.User.SignInData
 
-@(signInForm: Form[SignInData])(implicit request:RequestHeader, messages: Messages, assets: AssetsFinder, webJarsUtil: WebJarsUtil)
+@(signInForm: Form[SignInData], isSignUpEnabled: Boolean)(implicit request:RequestHeader, messages: Messages, assets: AssetsFinder, webJarsUtil: WebJarsUtil)
 
 @import helper._
 @import b3.inline.fieldConstructor
@@ -57,9 +57,11 @@
               </fieldset>
             }
           </div>
-          <div class="panel-footer ">
-            @messages("forms.signIn.noAccountYet") <a href="@routes.UserController.signUp" > @messages("forms.signIn.sigUpHere") </a>
-          </div>
+          @if(isSignUpEnabled) {
+            <div class="panel-footer ">
+              @messages("forms.signIn.noAccountYet") <a href="@routes.UserController.signUp" > @messages("forms.signIn.sigUpHere") </a>
+            </div>
+          }
         </div>
       </div>
     </div>

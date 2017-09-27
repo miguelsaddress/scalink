@@ -9,7 +9,7 @@ import models.User
 import business.UserManagement
 import business.adt.User.{ SignUpData, SignInData }
 import util.{ PasswordExtensions => Password }
-import business.adt.User.Failures._
+import auth.actions.AuthFailures._
 import org.scalatest.EitherValues
 import play.api.Logger
 

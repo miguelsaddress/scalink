@@ -7,4 +7,5 @@ case class PasswordExtensions(clearPassword: String) {
 
   def hash(): String = clearPassword.bcrypt(ROUNDS)
   def matches(aHash: String): Boolean = clearPassword.isBcrypted(aHash)
+  def validate: Boolean = ???
 }

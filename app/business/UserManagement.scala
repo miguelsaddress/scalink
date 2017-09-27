@@ -13,7 +13,7 @@ import dal.UserRepository.Failures.{
 }
 import models.User
 import business.adt.User.{ SignUpData, SignInData }
-import business.adt.User.Failures._
+import auth.actions.AuthFailures._
 import util.{ PasswordExtensions => Password }
 import play.api.Logger
 
@@ -44,6 +44,13 @@ class UserManagement @Inject() (userRepository: UserRepository) {
           case Some(u) if (Password(data.password).matches(u.password)) => Some(u)
           case _ => None
         }
+      }
+    }
+
+    def findByUsername(mayBeUsername: Option[String]): Future[Option[User]] = {
+      mayBeUsername match {
+        case Some(username) => userRepository.findByUsername(username)
+        case _ => Future.successful(None)
       }
     }
 

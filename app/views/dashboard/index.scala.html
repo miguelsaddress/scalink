@@ -3,9 +3,9 @@
 @import org.webjars.play.WebJarsUtil
 @import business.adt.User.SignUpData
 
-@(users: Seq[User])(implicit request:RequestHeader, messages: Messages, assets: AssetsFinder, webJarsUtil: WebJarsUtil)
+@(user: User, users: Seq[User])(implicit request:RequestHeader, messages: Messages, assets: AssetsFinder, webJarsUtil: WebJarsUtil)
 
-@main(messages("app.dashboard")) {
+@main(messages("app.dashboard"), Some(user)) {
   <div class="row">
     <p> List of users (remove this text)</p>
     <ul id="users">

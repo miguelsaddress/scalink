@@ -7,16 +7,23 @@ import play.api.data.validation.Constraints._
 import play.api.i18n._
 import play.api.libs.json.Json
 import play.api.mvc._
+import play.api.data.Form
+import play.api.data.Forms._
 
 import scala.concurrent.{ExecutionContext, Future}
-import business.adt.User.Failures._
-import business.UserManagement
 
-import play.api.Logger
+import auth.AuthorizationHandler
+import auth.actions.AuthActions
+import business.UserManagement
+import auth.actions.AuthFailures._
+import business.adt.User.SignUpData
 
 class UserController @Inject()(
   users: UserManagement,
-  cc: ControllerComponents
+  authActions: AuthActions,
+  cc: ControllerComponents,
+  config: play.api.Configuration,
+  authHandler: AuthorizationHandler
 )(
   implicit
   webJarsUtil: WebJarsUtil,
@@ -25,51 +32,49 @@ class UserController @Inject()(
 ) extends AbstractController(cc) with I18nSupport {
 
   val signUpForm = users.signUpForm
+  val isSignUpEnabled = config.get[Boolean]("auth.signUp.enabled")
 
   /**
    * GET signup view.
    */
-  def signUp = Action { implicit request =>
-    Ok(views.html.user.signup(signUpForm))
+  def signUp = authActions.NoUserAction { implicit request =>
+    if (isSignUpEnabled) {
+      Ok(views.html.user.signup(signUpForm))
+    } else {
+      NotFound
+    }
   }
 
   /**
    * The add user action.
    *
-   * This is asynchronous, since we're invoking the asynchronous methods on UserManagement layerº.
+   * This is asynchronous, since we're invoking the asynchronous methods on UserManagement layer.
    */
-  def addUser = Action.async { implicit request =>
-    signUpForm.bindFromRequest.fold(
-      errorForm => {
-        Future.successful(Ok(views.html.user.signup(errorForm)))
-      },
-      signUpData => {
-        Logger.debug(signUpData.password)
-        Logger.debug(signUpData.passwordConf)
-
-        if (signUpData.password != signUpData.passwordConf) {
-          val errorMessage = Messages("error.signUp.passwordMissmatch")
-          Redirect(routes.UserController.signUp).flashing("error" -> errorMessage)
-        } 
-
-        users.signUp(signUpData) map { _ match {
-          case Right(user) => Redirect(routes.DashboardController.index)
-          case Left(error) => {
-            val errorMessage = Messages(addUserErrorToMessage(error))
-            Redirect(routes.UserController.signUp).flashing("error" -> errorMessage)
-          }
-        }}
-      }
-    )
-  }
-
-  private def addUserErrorToMessage(error: SignUpFailure): String = {
-    error match {
-      case EmailTaken => "error.signUp.emailTaken"
-      case UsernameTaken => "error.signUp.usernameTaken"
-      case PasswordMissmatch => "error.signUp.passwordMissmatch"
-      case UnknownSignUpFailure => "error.signUp.unkown"
+  def addUser = authActions.NoUserAction.async { implicit request =>
+    def redirectIfPasswordsDontMatch(signUpData: SignUpData) = {
+      if (signUpData.password != signUpData.passwordConf) {
+        authHandler.onFailedSignUp(Messages(PasswordMissmatch.translationKey))
+      } 
     }
-  }
 
+    def processSignUp(signUpData: SignUpData) = {
+      users.signUp(signUpData) map { eitherUserOrError =>
+        eitherUserOrError match {
+          case Right(user) => authHandler.onSuccessfulSignUp(user)
+          case Left(error) => authHandler.onFailedSignUp(Messages(error.translationKey))
+        }
+      }
+    }
+
+    def onFormError(errorForm: Form[SignUpData]) = Future.successful {
+      Ok(views.html.user.signup(errorForm))
+    }
+
+    def onFormSuccess(signUpData: SignUpData) = {
+      redirectIfPasswordsDontMatch(signUpData)
+      processSignUp(signUpData)
+    }
+
+    signUpForm.bindFromRequest.fold(onFormError, onFormSuccess)
+  }
 }
