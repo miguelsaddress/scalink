@@ -1,8 +1,4 @@
 import org.scalatestplus.play._
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import org.scalatest.mockito.MockitoSugar
-import org.mockito.Mockito._
-import org.mockito.Matchers.any
 
 import akka.stream.Materializer
 
@@ -18,17 +14,19 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.User
 import auth.AuthorizationHandler
-import auth.RequestWithUser
+import auth.RequestWithUserInfo
 import auth.actions.AuthActions
+import auth.Roles._
 import business.UserManagement
 
 import play.api.Logger
 
-class AuthActionsSpec extends MockitoSugar with InvolvesDBSpecification {
+class AuthActionsSpec extends InvolvesDBSpecification {
+  
+  val USERNAME = "TheUsername"
+  val USER = User("Name", USERNAME, "email@example.com", "password")
 
   def authActions(implicit app: Application) = Application.instanceCache[AuthActions].apply(app)
-      val USERNAME = "TheUsername"
-      val USER = User("Name", USERNAME, "email@example.com", "password")
 
   "A MustHaveUserAction action" should {
     "return Ok when session contains a valid username" in new WithApplication() {
@@ -95,5 +93,54 @@ class AuthActionsSpec extends MockitoSugar with InvolvesDBSpecification {
       status(result) mustEqual 303 // Redirect
       header("location", result) mustEqual Some("/dashboard")
     }
+  }
+
+  "A UserWithRoleAction action" should {
+    "return Ok when session contains a user with the requested Role" in new WithApplication() {
+      val ADMIN_USERNAME = "TheAdminUSername"
+      val ADMIN_USER = User("Admin", ADMIN_USERNAME, "admin_email@example.com", "password", AdminRole)
+      await(userRepository.add(ADMIN_USER))
+
+      val action = authActions.UserWithRoleAction(AdminRole) { request =>
+        Ok(request.user.username)
+      }
+
+      val request = FakeRequest(GET, "/").withSession("username" -> ADMIN_USERNAME)
+      val result = call(action, request)
+
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual ADMIN_USERNAME
+    }
+
+    "return Ok when session does not contain a user with the requested Role but an Admin" in new WithApplication() {
+      val ADMIN_USERNAME = "TheAdminUSername"
+      val ADMIN_USER = User("Admin", ADMIN_USERNAME, "admin_email@example.com", "password", AdminRole)
+      await(userRepository.add(USER))
+      await(userRepository.add(ADMIN_USER))
+
+      val action = authActions.UserWithRoleAction(UserRole) { request =>
+        Ok(request.user.username)
+      }
+
+      val request = FakeRequest(GET, "/").withSession("username" -> ADMIN_USERNAME)
+      val result = call(action, request)
+
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual ADMIN_USERNAME
+    }
+
+    "return Forbidden when session contains a user without the requested Role" in new WithApplication() {
+      await(userRepository.add(USER))
+
+      val action = authActions.UserWithRoleAction(AdminRole) { request =>
+        Ok(request.user.username)
+      }
+
+      val request = FakeRequest(GET, "/").withSession("username" -> USERNAME)
+      val result = call(action, request)
+
+      status(result) mustEqual FORBIDDEN
+    }
+
   }
 }

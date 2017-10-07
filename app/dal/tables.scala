@@ -5,7 +5,9 @@ import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 import scala.concurrent.{ Future, ExecutionContext }
 
+import auth.Roles._
 import models.User
+import dal.ColumnMappingFunctions._
 
 /**
  * A repository for users.
@@ -17,6 +19,8 @@ class Tables @Inject() (val dbConfig: DatabaseConfig[JdbcProfile])(implicit ec: 
   import dbConfig.profile.api._
   val db = dbConfig.db
 
+  implicit val authRoleColumnType = MappedColumnType.base[AuthRole, Int](role2Int, int2Role)
+
   class UsersTable(tag: Tag) extends Table[User](tag, "users") {
 
     /** The ID column, which is the primary key, and auto incremented */
@@ -26,21 +30,22 @@ class Tables @Inject() (val dbConfig: DatabaseConfig[JdbcProfile])(implicit ec: 
     def username = column[String]("username")
     def email = column[String]("email")
     def password = column[String]("password")
+    def role = column[AuthRole]("role")
 
     def idx_unique_email = index("idx_unique_email", (email), unique = true)
     def idx_unique_username = index("idx_unique_username", (username), unique = true)
 
-    def * = (name, username, email, password, id) <> ((User.apply _).tupled, User.unapply)
+    def * = (name, username, email, password, role, id) <> ((User.apply _).tupled, User.unapply)
   }
 
   val users = TableQuery[UsersTable]
 
-  def createSchema() = db.run(
+  def createSchema() = db.run {
     users.schema.create
-  )
+  }
 
-  def dropSchema() = db.run (
+  def dropSchema() = db.run {
     users.schema.drop
-  )
+  }
   
 }

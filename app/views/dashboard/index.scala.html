@@ -1,9 +1,9 @@
 @import play.api.mvc.RequestHeader
 @import controllers.AssetsFinder
 @import org.webjars.play.WebJarsUtil
-@import business.adt.User.SignUpData
+@import business.adt.User.{ SignUpData, UserInfo }
 
-@(user: User, users: Seq[User])(implicit request:RequestHeader, messages: Messages, assets: AssetsFinder, webJarsUtil: WebJarsUtil)
+@(user: UserInfo, users: Seq[User])(implicit request:RequestHeader, messages: Messages, assets: AssetsFinder, webJarsUtil: WebJarsUtil)
 
 @main(messages("app.dashboard"), Some(user)) {
   <div class="row">
