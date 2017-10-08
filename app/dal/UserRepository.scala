@@ -34,9 +34,12 @@ class UserRepository @Inject() (val dbConfig: DatabaseConfig[JdbcProfile], val t
         case Success(user) => Right(user)
         case Failure(e: Exception) => {
           val msg = e.getMessage()
+          // Logger.error(s"$msg")
           msg match {
             case _ if msg.contains("idx_unique_username") => Left(UsernameTaken)
+            case _ if msg.contains("users_username_key") => Left(UsernameTaken)
             case _ if msg.contains("idx_unique_email") => Left(EmailTaken)
+            case _ if msg.contains("users_email_key") => Left(EmailTaken)
             case _ => Left(DBFailure)
           }
         }
@@ -45,18 +48,18 @@ class UserRepository @Inject() (val dbConfig: DatabaseConfig[JdbcProfile], val t
     } 
 
   def findByEmail(email: String): Future[Option[User]] = db.run {
-    users.filter(_.email === email).result.headOption
+    users.filter(_.email === email.toLowerCase).result.headOption
   }
 
   def findByUsername(username: String): Future[Option[User]] = db.run {
-    users.filter(_.username === username).result.headOption
+    users.filter(_.username === username.toLowerCase).result.headOption
   }
 
   /**
    * List all the users in the database.
    */
   def list(): Future[Seq[User]] = db.run {
-    users.result
+    users.sortBy(_.id.asc).result
   }
 
 }
@@ -65,7 +68,8 @@ object UserRepository {
   object Failures {
     sealed trait UserRepositoryFailure
     object DBFailure extends UserRepositoryFailure
-    object UsernameTaken extends UserRepositoryFailure  
+    object UsernameTaken extends UserRepositoryFailure
+    object InvalidUsername extends UserRepositoryFailure
     object EmailTaken extends UserRepositoryFailure
   }
 }

@@ -23,8 +23,11 @@ import play.api.Logger
 
 class AuthActionsSpec extends InvolvesDBSpecification {
   
-  val USERNAME = "TheUsername"
+  val USERNAME = "the_username"
   val USER = User("Name", USERNAME, "email@example.com", "password")
+
+  val ADMIN_USERNAME = "the_admin_username"
+  val ADMIN_USER = User("Admin", ADMIN_USERNAME, "admin_email@example.com", "password", AdminRole)
 
   def authActions(implicit app: Application) = Application.instanceCache[AuthActions].apply(app)
 
@@ -97,8 +100,6 @@ class AuthActionsSpec extends InvolvesDBSpecification {
 
   "A UserWithRoleAction action" should {
     "return Ok when session contains a user with the requested Role" in new WithApplication() {
-      val ADMIN_USERNAME = "TheAdminUSername"
-      val ADMIN_USER = User("Admin", ADMIN_USERNAME, "admin_email@example.com", "password", AdminRole)
       await(userRepository.add(ADMIN_USER))
 
       val action = authActions.UserWithRoleAction(AdminRole) { request =>
@@ -113,8 +114,6 @@ class AuthActionsSpec extends InvolvesDBSpecification {
     }
 
     "return Ok when session does not contain a user with the requested Role but an Admin" in new WithApplication() {
-      val ADMIN_USERNAME = "TheAdminUSername"
-      val ADMIN_USER = User("Admin", ADMIN_USERNAME, "admin_email@example.com", "password", AdminRole)
       await(userRepository.add(USER))
       await(userRepository.add(ADMIN_USER))
 

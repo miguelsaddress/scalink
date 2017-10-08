@@ -6,14 +6,16 @@ import javax.inject._
 import play.api.data.Form
 import play.api.data.Forms._
 
+import business.adt.User.{ SignUpData, SignInData }
+import business.validators.SignUpDataValidator
+import auth.actions.AuthFailures._
 import dal.UserRepository
+import dal.UserRepository.Failures.UserRepositoryFailure
 import dal.UserRepository.Failures.{
   EmailTaken => EmailTakenRepoFailure, 
   UsernameTaken => UsernameTakenRepoFailure
 }
 import models.User
-import business.adt.User.{ SignUpData, SignInData }
-import auth.actions.AuthFailures._
 import util.{ PasswordExtensions => Password }
 import play.api.Logger
 
@@ -21,20 +23,25 @@ import play.api.Logger
 class UserManagement @Inject() (userRepository: UserRepository) {
     lazy val signUpForm: Form[SignUpData] = business.forms.User.signUpForm
     lazy val signInForm: Form[SignInData] = business.forms.User.signInForm
-    
+    lazy val signUpDataValidator = SignUpDataValidator(this)
+
     def signUp(data: SignUpData)(implicit ec: ExecutionContext): Future[Either[SignUpFailure, User]] = {
-      if (data.password != data.passwordConf) {
-        Future.successful(Left(PasswordMissmatch))
-      } else {
-        val user = User(data.name, data.username, data.email, Password(data.password).hash)
-        userRepository.add(user) map { eitherUserOrFailure => eitherUserOrFailure match {
-          case Right(user) => Right(user)
-          case Left(failure) => failure match {
-            case EmailTakenRepoFailure => Left(EmailTaken)
-            case UsernameTakenRepoFailure => Left(UsernameTaken)
-            case _ => Left(UnknownSignUpFailure)
-          } 
-        }}
+
+      signUpDataValidator.validate(data) match {
+        case Some(failure) => Future.successful { Left(failure) }
+        case None => {
+          val user = User(data.name, data.username, data.email, Password(data.password).hash)
+          userRepository.add(user) map (handleUserAddition)
+        }
+      }
+    }
+
+    private def handleUserAddition(eitherUserOrFailure: Either[UserRepositoryFailure, User]) = eitherUserOrFailure match {
+      case Right(user) => Right(user)
+      case Left(failure) => failure match {
+        case EmailTakenRepoFailure => Left(EmailTaken)
+        case UsernameTakenRepoFailure => Left(UsernameTaken)
+        case _ => Left(UnknownSignUpFailure)
       }
     }
 
@@ -52,6 +59,14 @@ class UserManagement @Inject() (userRepository: UserRepository) {
         case Some(username) => userRepository.findByUsername(username)
         case _ => Future.successful(None)
       }
+    }
+
+    def findByUsername(username: String): Future[Option[User]] = {
+      userRepository.findByUsername(username)
+    }
+
+    def findByEmail(email: String): Future[Option[User]] = {
+      userRepository.findByEmail(email)
     }
 
     def fullList()(implicit ec: ExecutionContext): Future[Seq[User]] = {

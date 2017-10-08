@@ -3,6 +3,8 @@ username = Username
 email = E-Mail
 home = Home
 hello = Hello
+error = Error
+
 # app
 app.signUp = Sign Up
 app.signIn = Sign In
@@ -12,7 +14,8 @@ app.signOut = Sign Out
 error.signUp.unkown = There was an unknown error during signup
 error.signUp.usernameTaken = That username is already taken
 error.signUp.emailTaken = That E-Mail is already taken
-error.signUp.passwordMissmatch = The passowrd and its confirmation do not match
+error.signUp.passwordMissmatch = The password and its confirmation do not match
+error.signUp.invalidUsername = The username cannot contain spaces
 
 error.signIn.wrongCredentials = Something went wrong during the Sign Up. Please verify the E-Mail and the Password
 

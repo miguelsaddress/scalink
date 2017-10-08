@@ -49,7 +49,7 @@ class AuthController @Inject()(
    */
   def validateCredentials = Action.async { implicit request =>
     def onFormError(errorForm: Form[SignInData]) = Future.successful {
-      Ok(views.html.user.signin(errorForm, isSignUpEnabled))
+      BadRequest(views.html.user.signin(errorForm, isSignUpEnabled))
     }
 
     def onFormSuccess(signInData: SignInData) = {

@@ -10,7 +10,7 @@
     <p> List of users (remove this text)</p>
     <ul id="users">
     @for(u <- users) {
-      <li>@u.id - @u.username - @u.email </li>
+      <li>@u.role - (id = @u.id, username = @u.username, email = @u.email)</li>
     }
     </ul>    
   </div>

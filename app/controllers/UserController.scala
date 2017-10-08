@@ -51,13 +51,7 @@ class UserController @Inject()(
    * This is asynchronous, since we're invoking the asynchronous methods on UserManagement layer.
    */
   def addUser = authActions.NoUserAction.async { implicit request =>
-    def redirectIfPasswordsDontMatch(signUpData: SignUpData) = {
-      if (signUpData.password != signUpData.passwordConf) {
-        authHandler.onFailedSignUp(Messages(PasswordMissmatch.translationKey))
-      } 
-    }
-
-    def processSignUp(signUpData: SignUpData) = {
+    def onFormSuccess(signUpData: SignUpData) = {
       users.signUp(signUpData) map { eitherUserOrError =>
         eitherUserOrError match {
           case Right(user) => authHandler.onSuccessfulSignUp(user)
@@ -67,12 +61,7 @@ class UserController @Inject()(
     }
 
     def onFormError(errorForm: Form[SignUpData]) = Future.successful {
-      Ok(views.html.user.signup(errorForm))
-    }
-
-    def onFormSuccess(signUpData: SignUpData) = {
-      redirectIfPasswordsDontMatch(signUpData)
-      processSignUp(signUpData)
+      BadRequest(views.html.user.signup(errorForm))
     }
 
     signUpForm.bindFromRequest.fold(onFormError, onFormSuccess)

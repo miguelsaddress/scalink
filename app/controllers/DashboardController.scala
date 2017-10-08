@@ -17,7 +17,6 @@ import play.Logger
 
 class DashboardController @Inject()(
   users: UserManagement,
-  parse: PlayBodyParsers,
   authActions: AuthActions,
   cc: ControllerComponents
 )(

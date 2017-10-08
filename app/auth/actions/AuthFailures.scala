@@ -24,6 +24,10 @@ object AuthFailures {
   case object UsernameTaken extends SignUpFailure {
     def translationKey = "error.signUp.usernameTaken"
   }
+
+  case object InvalidUsername extends SignUpFailure {
+    def translationKey = "error.signUp.invalidUsername"
+  }
   
   case object PasswordMissmatch extends SignUpFailure {
     def translationKey = "error.signUp.passwordMissmatch"
