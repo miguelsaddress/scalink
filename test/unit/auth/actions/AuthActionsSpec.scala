@@ -32,7 +32,7 @@ class AuthActionsSpec extends InvolvesDBSpecification {
   def authActions(implicit app: Application) = Application.instanceCache[AuthActions].apply(app)
 
   "A MustHaveUserAction action" should {
-    "return Ok when session contains a valid username" in new WithApplication() {
+    "return Ok when session contains a valid username with role UserRole" in new WithApplication() {
       await(userRepository.add(USER))
       val action = authActions.MustHaveUserAction { request =>
         Ok(request.user.username)
@@ -43,6 +43,19 @@ class AuthActionsSpec extends InvolvesDBSpecification {
 
       status(result) mustEqual OK
       contentAsString(result) mustEqual USERNAME
+    }
+
+    "return Ok when session contains a valid username with role AdminRole" in new WithApplication() {
+      await(userRepository.add(ADMIN_USER))
+      val action = authActions.MustHaveUserAction { request =>
+        Ok(request.user.username)
+      }
+
+      val request = FakeRequest(GET, "/dashboard").withSession("username" -> ADMIN_USERNAME)
+      val result = call(action, request)
+
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual ADMIN_USERNAME
     }
   
     "Redirect to /signIn route when session does not contain a valid username" in new WithApplication() {

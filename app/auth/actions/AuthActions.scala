@@ -11,9 +11,9 @@ import auth.{ AuthorizationHandler, RequestWithUserInfo }
 import business.adt.User.UserInfo
 
 class AuthActions @Inject() (iab: IdentityActionBuilder, uac: UserActionConstructs)(implicit ec: ExecutionContext) {
-  def MustHaveUserAction = (iab andThen uac.WithUserActionRefiner)
   def NoUserAction = (iab andThen uac.WithoutUserActionFilter)
   def UserWithRoleAction(role: AuthRole) = (iab andThen uac.WithUserActionRefiner andThen uac.WithUserRoleActionFilter(role))
+  def MustHaveUserAction = UserWithRoleAction(UserRole)
 }
 
 
