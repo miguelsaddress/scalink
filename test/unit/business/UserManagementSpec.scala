@@ -28,7 +28,7 @@ class UserManagementSpec extends InvolvesDBSpecification with EitherValues {
     val signUpDataUsernameMustBeLowercased = SignUpData(name = "Miguel", username = "MaMoReNo4", email = "miguel+5@example.com", password = "A password", passwordConf = "A password")
 
     "Return newly created user after successfull signup" in new WithApplication() {
-      val user = await(users.signUp(signUpDataOk)).right.value
+      val user = await(await(users.signUp(signUpDataOk)).right.value).get
 
       user.name === signUpDataOk.name
       user.username === signUpDataOk.username
@@ -59,7 +59,7 @@ class UserManagementSpec extends InvolvesDBSpecification with EitherValues {
 
     "Username will be lowercased during signup process" in new WithApplication() {
       val either = await(users.signUp(signUpDataUsernameMustBeLowercased))
-      either.right.value.username shouldEqual signUpDataUsernameMustBeLowercased.username.toLowerCase
+      await(either.right.value).get.username shouldEqual signUpDataUsernameMustBeLowercased.username.toLowerCase
     }
   }
 

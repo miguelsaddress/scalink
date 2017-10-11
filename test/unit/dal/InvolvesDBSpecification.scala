@@ -46,4 +46,8 @@ trait InvolvesDBSpecification extends PlaySpecification with BeforeAfterAll {
     Application.instanceCache[dal.UserRepository].apply(app)
   }
 
+  def userManagement(implicit app: Application) = {
+    Application.instanceCache[business.UserManagement].apply(app)
+  }
+
 }

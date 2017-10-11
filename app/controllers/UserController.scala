@@ -51,12 +51,24 @@ class UserController @Inject()(
    * This is asynchronous, since we're invoking the asynchronous methods on UserManagement layer.
    */
   def addUser = authActions.NoUserAction.async { implicit request =>
+
+    /**
+     * TODO: Investigate why it returns an Object and I need the map
+     */
+
     def onFormSuccess(signUpData: SignUpData) = {
       users.signUp(signUpData) map { eitherUserOrError =>
         eitherUserOrError match {
-          case Right(user) => authHandler.onSuccessfulSignUp(user)
+          case Right(futureMaybeUser) => { futureMaybeUser map { maybeUser =>
+            maybeUser match {
+              case Some(user) => authHandler.onSuccessfulSignUp(user)
+              case None => authHandler.onFailedSignUp(Messages(UnknownSignUpFailure.translationKey))
+            }
+          }}
           case Left(error) => authHandler.onFailedSignUp(Messages(error.translationKey))
         }
+      } map { 
+        _: Object => authHandler.onFailedSignUp(Messages(UnknownSignUpFailure.translationKey))
       }
     }
 

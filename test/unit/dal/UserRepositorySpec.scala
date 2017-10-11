@@ -1,4 +1,3 @@
-import play.api.Application
 import play.api.test.WithApplication
 import org.scalatest.EitherValues
 
@@ -23,23 +22,23 @@ class UserRepositorySpec() extends InvolvesDBSpecification with EitherValues {
 
     "Return newly created user after successfull creation" in new WithApplication() {
       // it should have been inserted
-      val user = await(userRepository.add(userOk)).right.value
+      val user = await(userRepository.add(userOk)).get
       user.name === userOk.name
       user.username === userOk.username
       user.email === userOk.email
       user.password === userOk.password
     }
 
-    "Return a UsernameTaken when creating a user with an existing username" in new WithApplication() {
+    "Return a None when creating a user with an existing username" in new WithApplication() {
       // it should have been failed due to duplicated username
-      val either = await(userRepository.add(userUsernameTaken))
-      either.left.value shouldEqual UsernameTaken
+      val maybeUSer = await(userRepository.add(userUsernameTaken))
+      maybeUSer shouldEqual None
     }
 
-    "Return a EmailTaken when creating a user with an existing email" in new WithApplication() {
+    "Return a None when creating a user with an existing email" in new WithApplication() {
       // it should have been failed due to duplicated email. I replace the username
-      val either = await(userRepository.add(userEmailTaken))
-      either.left.value shouldEqual EmailTaken
+      val maybeUser = await(userRepository.add(userEmailTaken))
+      maybeUser shouldEqual None
     }
   }
 

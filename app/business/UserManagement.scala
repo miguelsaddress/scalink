@@ -25,23 +25,19 @@ class UserManagement @Inject() (userRepository: UserRepository) {
     lazy val signInForm: Form[SignInData] = business.forms.User.signInForm
     lazy val signUpDataValidator = SignUpDataValidator(this)
 
-    def signUp(data: SignUpData)(implicit ec: ExecutionContext): Future[Either[SignUpFailure, User]] = {
+    def signUp(data: SignUpData)(implicit ec: ExecutionContext): Future[Either[SignUpFailure, Future[Option[User]]]] = {
 
-      signUpDataValidator.validate(data) match {
-        case Some(failure) => Future.successful { Left(failure) }
-        case None => {
-          val user = User(data.name, data.username, data.email, Password(data.password).hash)
-          userRepository.add(user) map (handleUserAddition)
+      signUpDataValidator.validate(data).map { seq =>
+        val errors = seq.flatten
+
+        errors match {
+          case failure::Nil => Left(failure)
+          case hd::fls => Left(hd) // just the head
+          case Nil => {
+            val user = User(data.name, data.username, data.email, Password(data.password).hash)
+            Right(userRepository.add(user))
+          }
         }
-      }
-    }
-
-    private def handleUserAddition(eitherUserOrFailure: Either[UserRepositoryFailure, User]) = eitherUserOrFailure match {
-      case Right(user) => Right(user)
-      case Left(failure) => failure match {
-        case EmailTakenRepoFailure => Left(EmailTaken)
-        case UsernameTakenRepoFailure => Left(UsernameTaken)
-        case _ => Left(UnknownSignUpFailure)
       }
     }
 
