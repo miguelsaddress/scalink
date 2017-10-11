@@ -30,7 +30,7 @@ class UserRepository @Inject() (val dbConfig: DatabaseConfig[JdbcProfile], val t
     } map { res => 
       res match {
         case Success(user) => Some(user)
-        case Failure(e: Exception) => None
+        case Failure(_) => None
       }
     } 
 
