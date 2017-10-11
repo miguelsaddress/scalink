@@ -21,8 +21,6 @@ class UserRepository @Inject() (val dbConfig: DatabaseConfig[JdbcProfile], val t
   import dbConfig.profile.api._
   val db = dbConfig.db
 
-  import UserRepository.Failures._
-
   val users = tables.users
 
   def add(user:User): Future[Option[User]] = db.run {
@@ -35,28 +33,6 @@ class UserRepository @Inject() (val dbConfig: DatabaseConfig[JdbcProfile], val t
         case Failure(e: Exception) => None
       }
     } 
-
-  // def add(user:User): Future[Either[UserRepositoryFailure, User]] = db.run {
-  //   val insertReturningUserWithIdQuery = 
-  //     users returning users.map(_.id) into ((user,id) => user.copy(id=id))
-  //     (insertReturningUserWithIdQuery += user).asTry 
-  //   } map { res => 
-  //     res match {
-  //       case Success(user) => Right(user)
-  //       case Failure(e: Exception) => {
-  //         val msg = e.getMessage()
-  //         // Logger.error(s"$msg")
-  //         msg match {
-  //           case _ if msg.contains("idx_unique_username") => Left(UsernameTaken)
-  //           case _ if msg.contains("users_username_key") => Left(UsernameTaken)
-  //           case _ if msg.contains("idx_unique_email") => Left(EmailTaken)
-  //           case _ if msg.contains("users_email_key") => Left(EmailTaken)
-  //           case _ => Left(DBFailure)
-  //         }
-  //       }
-  //       case Failure(_) => Left(DBFailure)
-  //     }
-  //   } 
 
   def findByEmail(email: String): Future[Option[User]] = db.run {
     users.filter(_.email === email.toLowerCase).result.headOption
@@ -71,16 +47,5 @@ class UserRepository @Inject() (val dbConfig: DatabaseConfig[JdbcProfile], val t
    */
   def list(): Future[Seq[User]] = db.run {
     users.sortBy(_.id.asc).result
-  }
-
-}
-
-object UserRepository {
-  object Failures {
-    sealed trait UserRepositoryFailure
-    object DBFailure extends UserRepositoryFailure
-    object UsernameTaken extends UserRepositoryFailure
-    object InvalidUsername extends UserRepositoryFailure
-    object EmailTaken extends UserRepositoryFailure
   }
 }

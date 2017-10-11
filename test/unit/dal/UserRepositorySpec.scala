@@ -5,7 +5,6 @@ import business.UserManagement
 import business.adt.User.SignUpData
 import models.User
 import dal.UserRepository
-import dal.UserRepository.Failures._
 
 
 /**

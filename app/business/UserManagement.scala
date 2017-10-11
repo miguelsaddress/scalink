@@ -10,11 +10,7 @@ import business.adt.User.{ SignUpData, SignInData }
 import business.validators.SignUpDataValidator
 import auth.actions.AuthFailures._
 import dal.UserRepository
-import dal.UserRepository.Failures.UserRepositoryFailure
-import dal.UserRepository.Failures.{
-  EmailTaken => EmailTakenRepoFailure, 
-  UsernameTaken => UsernameTakenRepoFailure
-}
+
 import models.User
 import util.{ PasswordExtensions => Password }
 import play.api.Logger
