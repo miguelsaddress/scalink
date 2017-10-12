@@ -3,7 +3,7 @@
 @import play.twirl.api.Html
 @import org.webjars.play.WebJarsUtil
 @import controllers.AssetsFinder
-@import business.adt.User.UserInfo
+@import com.mamoreno.playseed.auth.UserInfo
 
 
 @(title: String, maybeUserInfo: Option[UserInfo] = None)(content: Html)(implicit request: RequestHeader, messages: Messages, assets: AssetsFinder, webJarsUtil: WebJarsUtil)
@@ -33,7 +33,7 @@
         <div class="navbar navbar-inverse" role="navigation">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="@controllers.routes.DashboardController.index">
+                    <a class="navbar-brand" href="@routes.DashboardController.index">
                         @messages("app.name")
                     </a>
                 </div>
@@ -46,7 +46,7 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li>
-                                        <a href="@controllers.routes.AuthController.signOut">@messages("app.signOut")</a>
+                                        <a href="@com.mamoreno.playseed.controllers.routes.AuthController.signOut">@messages("app.signOut")</a>
                                     </li>
                                 </ul>
                             </li>

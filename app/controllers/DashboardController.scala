@@ -9,9 +9,9 @@ import org.webjars.play.WebJarsUtil
 
 import scala.concurrent.ExecutionContext
 
-import business.UserManagement
-import auth._
-import auth.actions.AuthActions
+import com.mamoreno.playseed.business.UserManagement
+import com.mamoreno.playseed.auth._
+import com.mamoreno.playseed.auth.actions.AuthActions
 
 import play.Logger
 

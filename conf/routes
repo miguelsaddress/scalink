@@ -8,12 +8,12 @@
 
 
 
-GET     /signUp                   controllers.UserController.signUp
-POST    /user                     controllers.UserController.addUser
+GET     /signUp                   com.mamoreno.playseed.controllers.UserController.signUp
+POST    /user                     com.mamoreno.playseed.controllers.UserController.addUser
 
-GET     /signIn                   controllers.AuthController.signIn
-GET     /signOut                  controllers.AuthController.signOut
-POST    /validateCredentials      controllers.AuthController.validateCredentials
+GET     /signIn                   com.mamoreno.playseed.controllers.AuthController.signIn
+GET     /signOut                  com.mamoreno.playseed.controllers.AuthController.signOut
+POST    /validateCredentials      com.mamoreno.playseed.controllers.AuthController.validateCredentials
 
 GET     /dashboard                controllers.DashboardController.index
 

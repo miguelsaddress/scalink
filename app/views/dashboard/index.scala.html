@@ -1,7 +1,8 @@
 @import play.api.mvc.RequestHeader
 @import controllers.AssetsFinder
 @import org.webjars.play.WebJarsUtil
-@import business.adt.User.{ SignUpData, UserInfo }
+@import com.mamoreno.playseed.auth.UserInfo
+@import com.mamoreno.playseed.models.User
 
 @(user: UserInfo, users: Seq[User])(implicit request:RequestHeader, messages: Messages, assets: AssetsFinder, webJarsUtil: WebJarsUtil)
 

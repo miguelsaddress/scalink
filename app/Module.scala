@@ -2,7 +2,8 @@ import com.google.inject.{ AbstractModule, Provides, Singleton }
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
-import auth.{ AuthorizationHandler, AuthorizationHandlerImpl }
+import com.mamoreno.playseed.auth.{ AuthorizationHandler }
+import auth.AuthorizationHandlerImpl
 
 /**
  * This class is a Guice module that tells Guice how to bind several
