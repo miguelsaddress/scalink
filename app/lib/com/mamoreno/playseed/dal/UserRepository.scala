@@ -7,10 +7,8 @@ import scala.util.{ Try, Success, Failure }
 import scala.concurrent.{ Future, ExecutionContext }
 import org.postgresql.util.PSQLException
 
-
 import com.mamoreno.playseed.models.User
 import play.api.Logger
-
 
 /**
  * A repository for users.
@@ -31,7 +29,7 @@ class UserRepository @Inject() (val dbConfig: DatabaseConfig[JdbcProfile], val t
     } map { res => 
       res match {
         case Success(user) => Some(user)
-        case Failure(_) => None
+        case Failure(f) => None
       }
     } 
 

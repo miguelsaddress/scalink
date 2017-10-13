@@ -11,6 +11,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{ Try, Success, Failure }
 
 import controllers.AssetsFinder
 import com.mamoreno.playseed.auth.AuthorizationHandler
@@ -52,13 +53,8 @@ class UserController @Inject()(
    * This is asynchronous, since we're invoking the asynchronous methods on UserManagement layer.
    */
   def addUser = authActions.NoUserAction.async { implicit request =>
-
-    /**
-     * TODO: Investigate why it returns an Object and I need the map
-     */
-
-    def onFormSuccess(signUpData: SignUpData) = {
-      users.signUp(signUpData) map { eitherUserOrError =>
+    def onFormSuccess(signUpData: SignUpData) = Future.successful {
+      users.signUp(signUpData) flatMap { eitherUserOrError =>
         eitherUserOrError match {
           case Right(futureMaybeUser) => { futureMaybeUser map { maybeUser =>
             maybeUser match {
@@ -66,12 +62,10 @@ class UserController @Inject()(
               case None => authHandler.onFailedSignUp(Messages(UnknownSignUpFailure.translationKey))
             }
           }}
-          case Left(error) => authHandler.onFailedSignUp(Messages(error.translationKey))
+          case Left(error) => Future.successful{ authHandler.onFailedSignUp(Messages(error.translationKey)) }
         }
-      } map { 
-        _: Object => authHandler.onFailedSignUp(Messages(UnknownSignUpFailure.translationKey))
       }
-    }
+    }.flatten // Future[Future[Result]] .... :(
 
     def onFormError(errorForm: Form[SignUpData]) = Future.successful {
       BadRequest(lib.com.mamoreno.playseed.views.html.user.signup(errorForm))

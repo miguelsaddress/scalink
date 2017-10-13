@@ -6,12 +6,11 @@ import javax.inject._
 import play.api.data.Form
 import play.api.data.Forms._
 
-import com.mamoreno.playseed.forms.{ SignUpData, SignInData }
-import com.mamoreno.playseed.forms
-import com.mamoreno.playseed.forms.validators.SignUpDataValidator
 import com.mamoreno.playseed.auth.actions.AuthFailures._
 import com.mamoreno.playseed.dal.UserRepository
-
+import com.mamoreno.playseed.forms
+import com.mamoreno.playseed.forms.{ SignUpData, SignInData }
+import com.mamoreno.playseed.forms.validators.SignUpDataValidator
 import com.mamoreno.playseed.models.User
 import com.mamoreno.playseed.util.{ PasswordExtensions => Password }
 import play.api.Logger
