@@ -16,7 +16,7 @@ import play.api.Logger
 
 class UserManagementSpec extends InvolvesDBSpecification with EitherValues {
 
-  def users(implicit app: Application) = Application.instanceCache[UserManagement].apply(app)
+  //def userManagement(implicit app: Application) = Application.instanceCache[UserManagement].apply(app)
   val r = scala.util.Random
 
   "Signup " should {
@@ -29,7 +29,7 @@ class UserManagementSpec extends InvolvesDBSpecification with EitherValues {
     val signUpDataUsernameMustBeLowercased = SignUpData(name = "Miguel", username = "MaMoReNo4", email = "miguel+5@example.com", password = "A password", passwordConf = "A password")
 
     "Return newly created user after successfull signup" in new WithApplication() {
-      val user = await(await(users.signUp(signUpDataOk)).right.value).get
+      val user = await(await(userManagement.signUp(signUpDataOk)).right.value).get
 
       user.name === signUpDataOk.name
       user.username === signUpDataOk.username
@@ -40,26 +40,26 @@ class UserManagementSpec extends InvolvesDBSpecification with EitherValues {
 
     "Return a 'usernameTaken' when creating a user with an existing username" in new WithApplication() {
       // it should have been failed due to duplicated username
-      await(users.signUp(signUpDataUsernameTaken)).left.value shouldEqual UsernameTaken
+      await(userManagement.signUp(signUpDataUsernameTaken)).left.value shouldEqual UsernameTaken
     }
 
     "Return a 'emailTaken' when creating a user with an existing email" in new WithApplication() {
       // it should have been failed due to duplicated email. I replace the usernam
-      await(users.signUp(signUpDataEmailTaken)).left.value shouldEqual EmailTaken
+      await(userManagement.signUp(signUpDataEmailTaken)).left.value shouldEqual EmailTaken
     }
 
     "Fail if password and passwordConf do not match" in new WithApplication() {
-      val either = await(users.signUp(signUpDataPaswordMismatch))
+      val either = await(userManagement.signUp(signUpDataPaswordMismatch))
       either.left.value shouldEqual PasswordMissmatch
     }
 
     "Fail if username provided contains spaces" in new WithApplication() {
-      val either = await(users.signUp(signUpDataUsernameWithSpaces))
+      val either = await(userManagement.signUp(signUpDataUsernameWithSpaces))
       either.left.value shouldEqual InvalidUsername
     }
 
     "Username will be lowercased during signup process" in new WithApplication() {
-      val either = await(users.signUp(signUpDataUsernameMustBeLowercased))
+      val either = await(userManagement.signUp(signUpDataUsernameMustBeLowercased))
       await(either.right.value).get.username shouldEqual signUpDataUsernameMustBeLowercased.username.toLowerCase
     }
   }
@@ -73,11 +73,11 @@ class UserManagementSpec extends InvolvesDBSpecification with EitherValues {
       passwordConf = "A password")
     
     "Successfully signIn for existing email and password" in new WithApplication() {
-      val signInDataOk = SignInData(email = "sign_in_ok@example.com", password = "A password")
+      val signInDataOk = SignInData(emailOrUsername = "sign_in_ok@example.com", password = "A password")
       // create the user
-      await(users.signUp(signUpDataOk)).right.value should not be None
+      await(userManagement.signUp(signUpDataOk)).right.value should not be None
       //sign it in
-      val maybeUser = await(users.signIn(signInDataOk))
+      val maybeUser = await(userManagement.signIn(signInDataOk))
       maybeUser.isDefined === true
      
       val user = maybeUser.get
@@ -85,22 +85,38 @@ class UserManagementSpec extends InvolvesDBSpecification with EitherValues {
       user.username === signUpDataOk.username
       user.email === signUpDataOk.email
       user.password !== signUpDataOk.email
+    }
 
+    "Successfully signIn for existing username and password" in new WithApplication() {
+
+      val signInDataOk = SignInData(emailOrUsername = signUpDataOk.username, password = signUpDataOk.password)
+      // create the user in case it does not exist
+      await(userManagement.signUp(signUpDataOk))
+
+      //sign it in
+      val maybeUser = await(userManagement.signIn(signInDataOk))
+      maybeUser.isDefined === true
+     
+      val user = maybeUser.get
+      user.name === signUpDataOk.name
+      user.username === signUpDataOk.username
+      user.email === signUpDataOk.email
+      user.password !== signUpDataOk.email
     }
 
     "Return None when trying a signIn for a NON existing email and password" in new WithApplication() {
-      val signInDataOk = SignInData(email = "I_Dont_Exist@example.com", password = "A password")
+      val signInDataOk = SignInData(emailOrUsername = "I_Dont_Exist@example.com", password = "A password")
       //sign it in and see it fail
-      await(users.signIn(signInDataOk)) shouldEqual None
+      await(userManagement.signIn(signInDataOk)) shouldEqual None
     }
 
     "Return None when trying a signIn for a existing email and WRONG password" in new WithApplication() {
-      val signInDataOk = SignInData(email = "signInOk2@example.com", password = "a WRONG password")
+      val signInDataOk = SignInData(emailOrUsername = "signInOk2@example.com", password = "a WRONG password")
       val signUpDataOk = SignUpData(name = "Miguel", username = "signInOk2", email = "signInOk2@example.com", password = "A password", passwordConf = "A password")
       // create the user
-      await(users.signUp(signUpDataOk)).right.value should not be None
+      await(userManagement.signUp(signUpDataOk)).right.value should not be None
       //sign it in and see it fail
-      await(users.signIn(signInDataOk)) shouldEqual None
+      await(userManagement.signIn(signInDataOk)) shouldEqual None
     }
   }
 
@@ -117,9 +133,9 @@ class UserManagementSpec extends InvolvesDBSpecification with EitherValues {
         password = "A password",
         passwordConf = "A password")
 
-      await(users.signUp(signUpDataOk))
+      await(userManagement.signUp(signUpDataOk))
 
-      val maybeUser = await(users.findByEmail(signUpDataOk.email))
+      val maybeUser = await(userManagement.findByEmail(signUpDataOk.email))
       maybeUser.isDefined === true
 
       val user = maybeUser.get
@@ -140,9 +156,9 @@ class UserManagementSpec extends InvolvesDBSpecification with EitherValues {
         password = "A password",
         passwordConf = "A password")
 
-      await(users.signUp(signUpDataOk))
+      await(userManagement.signUp(signUpDataOk))
 
-      val maybeUser = await(users.findByUsername(signUpDataOk.username))
+      val maybeUser = await(userManagement.findByUsername(signUpDataOk.username))
       maybeUser.isDefined === true
 
       val user = maybeUser.get

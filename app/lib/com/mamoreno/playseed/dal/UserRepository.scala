@@ -41,6 +41,12 @@ class UserRepository @Inject() (val dbConfig: DatabaseConfig[JdbcProfile], val t
     users.filter(_.username === username.toLowerCase).result.headOption
   }
 
+  def findByEmailOrUsername(emailOrUsername: String): Future[Option[User]] = db.run {
+    users.filter( rep => 
+      rep.email === emailOrUsername.toLowerCase || rep.username === emailOrUsername.toLowerCase
+    ).result.headOption
+  }
+
   /**
    * List all the users in the database.
    */

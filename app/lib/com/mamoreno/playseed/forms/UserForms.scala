@@ -5,7 +5,7 @@ import play.api.data.Forms._
 import play.api.data.validation.Constraints.emailAddress
 
 case class SignUpData(name: String, username: String, email: String, password: String, passwordConf: String)
-case class SignInData(email: String, password: String)
+case class SignInData(emailOrUsername: String, password: String)
 
 object User {
 
@@ -21,7 +21,7 @@ object User {
 
   lazy val signInForm: Form[SignInData] = Form {
     mapping(
-      "email" -> nonEmptyText,
+      "emailOrUsername" -> nonEmptyText,
       "password" -> nonEmptyText,
     )(SignInData.apply)(SignInData.unapply)
   }

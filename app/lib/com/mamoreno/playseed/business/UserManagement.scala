@@ -38,7 +38,7 @@ class UserManagement @Inject() (userRepository: UserRepository) {
     }
 
     def signIn(data: SignInData)(implicit ec: ExecutionContext): Future[Option[User]] = {
-      userRepository.findByEmail(data.email) map { mayBeUser => 
+      userRepository.findByEmailOrUsername(data.emailOrUsername) map { mayBeUser => 
         mayBeUser match {
           case Some(u) if (Password(data.password).matches(u.password)) => Some(u)
           case _ => None

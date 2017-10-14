@@ -89,5 +89,37 @@ class UserRepositorySpec() extends InvolvesDBSpecification with EitherValues {
     }
   }
 
+  "Finding a user by Email Or Username" should {
+    "Return the Option[User] if the Email or Username exists" in new WithApplication() {
+      val user = User(
+        name = "My Name",
+        username = "finding_by_email_or_username",
+        email = "finding_by_email_or_username@example.com",
+        password = "A password")
+
+      await(userRepository.add(user))
+
+      val foundUserByEmail: User = await(userRepository.findByEmailOrUsername(user.email)).get
+      foundUserByEmail.getClass.getName === "com.mamoreno.playseed.models.User"
+
+      foundUserByEmail.name === user.name
+      foundUserByEmail.username === user.username
+      foundUserByEmail.email === user.email
+      foundUserByEmail.password == user.password
+
+      val foundUserByUsername: User = await(userRepository.findByEmailOrUsername(user.username)).get
+      foundUserByUsername.getClass.getName === "com.mamoreno.playseed.models.User"
+
+      foundUserByUsername.name === user.name
+      foundUserByUsername.username === user.username
+      foundUserByUsername.email === user.email
+      foundUserByUsername.password == user.password
+    }
+
+    "Return the None if the Email AND the Username DOES NOT exist" in new WithApplication() {
+      await(userRepository.findByEmailOrUsername("invented")) === None
+    }
+  }
+
 
 }

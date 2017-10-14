@@ -34,7 +34,7 @@ forms.signUp.sigInHere = Sign In Here
 
 # signIn form
 
-forms.signIn.email = Your E-Mail
+forms.signIn.emailOrUsername = Your E-Mail or Username
 forms.signIn.password = Choose a password
 forms.signIn.submit = Sign Ip!
 forms.signIn.noAccountYet = I don't have an account yet!
