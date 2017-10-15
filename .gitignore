@@ -14,3 +14,11 @@ server.pid
 *.eml
 /dist/
 .cache
+/target/
+/.idea
+/.idea_modules
+/.classpath
+/.project
+/.settings
+/RUNNING_PID
+>>>>>>> 9fa19059adfc807fb5100d68fa4593e0f6b62ccb

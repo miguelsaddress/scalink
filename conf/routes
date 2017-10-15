@@ -1,0 +1,24 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+
+# import webjars routes
+->          /webjars                webjars.Routes
+
+
+
+GET     /signUp                   com.mamoreno.playseed.controllers.UserController.signUp
+POST    /user                     com.mamoreno.playseed.controllers.UserController.addUser
+
+GET     /signIn                   com.mamoreno.playseed.controllers.AuthController.signIn
+GET     /signOut                  com.mamoreno.playseed.controllers.AuthController.signOut
+POST    /validateCredentials      com.mamoreno.playseed.controllers.AuthController.validateCredentials
+
+GET     /dashboard                controllers.DashboardController.index
+
+# Home Page
+GET     /                         controllers.DashboardController.index
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file             controllers.Assets.versioned(path="/public", file: Asset)
