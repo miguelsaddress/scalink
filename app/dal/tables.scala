@@ -19,7 +19,10 @@ extends SeedTables(dbConfig)(ec) {
   import dbConfig.profile.api._
   lazy val dbApi = dbConfig.profile.api
 
-  implicit val urlColumnType = MappedColumnType.base[URL, String](url2string, string2url)
+  implicit val urlColumnType = MappedColumnType.base[URL, String](
+    url2string, string2url
+  )
+  
   implicit val localDateTimeColumnType = MappedColumnType.base[LocalDateTime, Timestamp](
     localDateTime2timestamp, timestamp2localeDateTime
   )
@@ -27,16 +30,18 @@ extends SeedTables(dbConfig)(ec) {
   class LinkTable(tag: Tag) extends Table[Link](tag, "link") {
 
     def url = column[URL]("url")
-    def name = column[String]("name")
+    def title = column[String]("title")
     def description = column[String]("description")
     def userId = column[Long]("user_id")
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
 
-    def idx_unique_url = index("idx_unique_url", (url), unique = true)
-    def idx_unique_ame = index("idx_unique_ame", (name), unique = true)
+    def idx_unique_url_per_user = index("idx_unique_url_per_user", (url, userId), unique = true)
+    def idx_unique_title_per_user = index("idx_unique_title_per_user", (title, userId), unique = true)
     def users_fk = foreignKey("users_fk", userId, users)(_.id)
 
-    def * = (url, name, description, userId, id).mapTo[Link]
+    // http://queirozf.com/entries/slick-error-message-value-tupled-is-not-a-member-of-object
+    // instead of mapTo
+    def * = (url, title, description, userId, id) <> ((Link.apply _).tupled, Link.unapply)
   }
 
   class AccessLogTable(tag: Tag) extends Table[AccessLog](tag, "access_log") {

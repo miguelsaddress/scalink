@@ -17,6 +17,9 @@ POST    /validateCredentials      com.mamoreno.playseed.controllers.AuthControll
 
 GET     /dashboard                controllers.DashboardController.index
 
+# Link API
+POST    /api/link                    controllers.LinksController.create
+
 # Home Page
 GET     /                         controllers.DashboardController.index
 

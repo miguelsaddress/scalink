@@ -38,7 +38,7 @@ class UserActionConstructs @Inject() (authorizationHandler: AuthorizationHandler
     def refine[A](request: Request[A]): Future[Either[Result, RequestWithUserInfo[A]]] = {
       authorizationHandler.userFromRequest(request).map { maybeUser =>
         maybeUser.map { user =>
-          Right(RequestWithUserInfo(UserInfo(user.username, user.role), request))
+          Right(RequestWithUserInfo(UserInfo(user.id, user.username, user.role), request))
         }.getOrElse {
           Left(authorizationHandler.onMustBeSignedIn)
         }

@@ -9,6 +9,8 @@ import dal.Tables
 import model.Link
 import play.api.Logger
 
+import scala.util.Try
+
 @Singleton
 class LinkRepository @Inject() (val dbConfig: DatabaseConfig[JdbcProfile], val tables: Tables)(implicit ec: ExecutionContext) {
   import dbConfig.profile.api._
@@ -16,10 +18,10 @@ class LinkRepository @Inject() (val dbConfig: DatabaseConfig[JdbcProfile], val t
 
   val links = tables.links
 
-  def add(link:Link): Future[Link] = db.run {
+  def add(link:Link): Future[Try[Link]] = db.run {
     val insertReturningLinkWithIdQuery = 
       links returning links.map(_.id) into ((link,id) => link.copy(id=id))
-      (insertReturningLinkWithIdQuery += link)
+      (insertReturningLinkWithIdQuery += link) asTry
   }
 
   def list(): Future[Seq[Link]] = db.run {
