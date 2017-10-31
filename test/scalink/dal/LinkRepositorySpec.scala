@@ -51,9 +51,30 @@ class LinkRepositorySpec() extends UsesDB with EitherValues {
 
   "Listing links" should {
     "return all the links" in new WithApplication() {
-      val list = await(linkRepository.list)
+      val list = await(linkRepository.getAllForUserWithId(uid = 1))
       list.length !== 0
       list.length >= Seeds.links.length
+    }
+  }
+
+  "Deleting links" should {
+    "Be possible when we just know its id" in new WithApplication {
+      // crete a link
+      val userId = 1
+      val link = Link("http://www.deleting.es", "deleting", "No desc", userId)
+      val tryLink = await(linkRepository.add(link))
+      val createdLink = tryLink.success.value
+
+      // count the number of links
+      val count = await(linkRepository.linksCountForUser(userId))
+      // remove it
+      val deletedLink = await(linkRepository.deleteForUserById(userId, createdLink.id))
+      deletedLink.isDefined === true
+      deletedLink.get === createdLink
+
+      // After removing it, the count should be one less
+      val newCount = await(linkRepository.linksCountForUser(userId))
+      newCount === (count - 1)
     }
   }
 }

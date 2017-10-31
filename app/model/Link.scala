@@ -5,17 +5,16 @@ import scala.concurrent.{ Future, ExecutionContext }
 case class Link(url: URL, title: String, description: String, userId: Long = 0L, id: Long = 0L) {
 
   def toMap() = Map(
+    "id" -> id.toString,
     "url" -> url.toString,
     "title" -> title,
-    "description" -> description,
-    "id" -> id.toString
+    "description" -> description
   )
 
 }
 
 case object Link {
   import play.api.libs.json._
-  import scala.util.{ Try, Success, Failure }
 
   object Implicits {
     implicit def string2url(str: String) = {
@@ -25,13 +24,6 @@ case object Link {
 
   implicit object LinkWrites extends Writes[Link] {
     def writes(link: Link) = Json.toJson(link.toMap)
-  }
-
-  implicit object TryLinkWrites extends Writes[Try[Link]] {
-    def writes(tryLink: Try[Link]) = tryLink match {
-      case Success(link) => Json.toJson(link.toMap)
-      case Failure(t) => Json.toJson(Map("status" -> "KO", "message" -> t.getMessage))
-    }
   }
 
   implicit object LinkReads extends Reads[Link] {

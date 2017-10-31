@@ -18,7 +18,11 @@ POST    /validateCredentials      com.mamoreno.playseed.controllers.AuthControll
 GET     /dashboard                controllers.DashboardController.index
 
 # Link API
-POST    /api/link                    controllers.LinksController.create
+POST    /api/link                 controllers.api.LinksController.create
+DELETE  /api/link/:id             controllers.api.LinksController.delete(id: Long)
+GET     /api/link/:id             controllers.api.LinksController.get(id: Long)
+GET     /api/links                controllers.api.LinksController.list
+POST    /api/seed/links           controllers.api.LinksController.seed
 
 # Home Page
 GET     /                         controllers.DashboardController.index
